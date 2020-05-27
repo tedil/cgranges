@@ -4,7 +4,7 @@ use std::io::BufReader;
 use std::ops::{Deref, Range};
 use std::path::PathBuf;
 
-use bio::data_structures::cgranges::*;
+use bio::data_structures::interval_tree::ArrayBackedIntervalTree;
 use csv;
 use serde_derive::{Deserialize, Serialize};
 use structopt::StructOpt;
@@ -34,14 +34,14 @@ fn main() -> Result<(), std::io::Error> {
         .has_headers(false)
         .from_reader(bed_ref_reader);
 
-    let mut trees: HashMap<String, IITree<_, _>> = HashMap::with_capacity(24);
+    let mut trees: HashMap<String, ArrayBackedIntervalTree<_, _>> = HashMap::with_capacity(24);
     bed_ref
         .deserialize()
         .filter_map(Result::ok)
         .for_each(|r: Record| {
             trees
                 .entry(r.chrom)
-                .or_insert(IITree::new())
+                .or_insert(ArrayBackedIntervalTree::new())
                 .insert(r.start..r.end, 0)
         });
     // sorting happens in `index()`
