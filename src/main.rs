@@ -59,9 +59,8 @@ fn main() -> Result<(), std::io::Error> {
         .for_each(|r: Record| {
             let (target_start, target_end, chrom) = (r.start, r.end, r.chrom.to_string());
             let (mut cov, mut cov_start, mut cov_end, mut n) = (0, 0, 0, 0);
-            trees[&chrom].overlap_into(target_start, target_end, &mut buffer);
-            let overlap = &buffer;
-            for entry in overlap {
+            trees[&chrom].find_into(target_start..target_end, &mut buffer);
+            for entry in &buffer {
                 n += 1;
                 let Range { mut start, mut end } = entry.interval().deref();
                 start = start.max(target_start);
